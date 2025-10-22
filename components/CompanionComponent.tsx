@@ -1,6 +1,7 @@
 "use client";
 
 import soundwaves from "@/constants/soundwaves.json";
+import { addToSessionHistory } from "@/lib/actions/companion.actions";
 import { configureAssistant } from "@/lib/utils";
 import { vapi } from "@/lib/vapi.sdk";
 import { cn, getSubjectColor } from "@/utils";
@@ -48,7 +49,11 @@ const CompanionComponent = ({
   useEffect(() => {
     const onCallStart = () => setcallStatus(CallStatus.ACTIVE);
 
-    const onCallEnd = () => setcallStatus(CallStatus.FINISHED);
+    const onCallEnd = () => {
+      setcallStatus(CallStatus.FINISHED);
+
+      addToSessionHistory(companionId);
+    };
 
     const onMessage = (message: Message) => {
       if (message.type === "transcript" && message.transcriptType === "final") {
@@ -109,7 +114,7 @@ const CompanionComponent = ({
   };
 
   return (
-    <section className="flex flex-col h-[70vh]">
+    <section className="flex flex-col h-[80vh]">
       <section className="flex gap-8 max-sm:flex-col">
         <div className="companion-section">
           <div
@@ -162,7 +167,11 @@ const CompanionComponent = ({
             />
             <p className="font-bold text-2xl">{userName}</p>
           </div>
-          <button className="btn-mic" onClick={toggleMicrophone}>
+          <button
+            className="btn-mic"
+            onClick={toggleMicrophone}
+            disabled={callStatus === CallStatus.ACTIVE}
+          >
             <Image
               src={isMuted ? "/icons/mic-off.svg" : "/icons/mic-on.svg"}
               alt="mic"
@@ -193,27 +202,24 @@ const CompanionComponent = ({
       </section>
       <section className="transcript">
         <div className="transcript-message no-scrollbar">
-          {messages.map((message) => {
+          {messages.map((message, index) => {
             if (message.role === "assistant") {
               return (
-                <p key={message.content} className="max-sm:text-sm">
-                  {name.split(" ")[0].replace("/[.,]/g", "")} :{" "}
-                  {message.content}
+                <p key={index} className="max-sm:text-sm">
+                  {name} : {message.content}
+                  {/* {name.split(" ")[0].replace("/[.,]/g", "")} :{message.content} */}
                 </p>
               );
             } else {
               return (
-                <p
-                  key={message.content}
-                  className="text-primary max-sm:text-sm"
-                >
+                <p key={index} className="text-primary max-sm:text-sm">
                   {userName} : {message.content}
                 </p>
               );
             }
           })}
         </div>
-        <div className="transscript-fade" />
+        <div className="transcript-fade" />
       </section>
     </section>
   );

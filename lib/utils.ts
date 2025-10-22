@@ -55,10 +55,33 @@ export const configureAssistant = (voice: string, style: string) => {
         },
       ],
     },
-    // @ts-expect-error - the type would work regardless
-    clientMessages: [],
-    // @ts-expect-error - the type would work regardless
-    serverMessages: [],
+    clientMessages: [
+      "conversation-update",
+      "function-call",
+      "hang",
+      "model-output",
+      "speech-update",
+      "status-update",
+      "transfer-update",
+      "transcript",
+      "tool-calls",
+      "user-interrupted",
+      "voice-input",
+      "workflow.node.started",
+    ] as const as unknown as CreateAssistantDTO["clientMessages"],
+
+    serverMessages: [
+      "conversation-update",
+      "end-of-call-report",
+      "function-call",
+      "hang",
+      "speech-update",
+      "status-update",
+      "tool-calls",
+      "transfer-destination-request",
+      "handoff-destination-request",
+      "user-interrupted",
+    ] as const as unknown as CreateAssistantDTO["serverMessages"],
   };
   return vapiAssistant;
 };
